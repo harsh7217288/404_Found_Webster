@@ -1,0 +1,54 @@
+.clock {
+  display: grid;
+  gap: 10px;
+  padding: 22px 24px;
+  background: var(--sheet);
+  border: 2px solid var(--ink);
+  border-radius: var(--r-md);
+}
+.clockMain {
+  font-family: var(--display);
+  font-size: clamp(1.4rem, 3vw, var(--s3));
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.bar {
+  height: 10px;
+  background: var(--tint);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.bar > div {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--verdigris);
+}
+.bar > .barWarn {
+  background: var(--accent);
+}
+.bar > .barBad {
+  background: var(--seal);
+}
+.files,
+.views {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+.files li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.views li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--tint);
+}
