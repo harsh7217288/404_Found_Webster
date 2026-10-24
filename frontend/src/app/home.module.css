@@ -1,0 +1,73 @@
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+  gap: 64px;
+  align-items: start;
+  padding: 16px 0 72px;
+}
+.headline {
+  font-family: var(--display);
+  font-size: clamp(2.6rem, 6vw, var(--s5));
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 0.98;
+  max-width: 13ch;
+  margin-bottom: 28px;
+}
+.lede {
+  font-size: var(--s1);
+  line-height: 1.55;
+  color: var(--ink-2);
+  max-width: 46ch;
+  margin-bottom: 32px;
+}
+.ladderBox {
+  padding-top: 8px;
+}
+.points {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  padding: 48px 0;
+  border-top: 1px solid var(--line);
+}
+.points > div {
+  padding: 0 32px;
+  border-left: 2px solid var(--ink);
+}
+.points > div:first-child {
+  padding-left: 20px;
+}
+.seal {
+  display: grid;
+  grid-template-columns: minmax(0, 4fr) minmax(0, 7fr);
+  gap: 32px;
+  background: var(--sheet);
+  border: 2px dashed var(--ink);
+  padding: 32px;
+  border-radius: var(--r-md);
+  margin-top: 16px;
+}
+.seal :global(.mono) {
+  font-size: 1rem;
+  color: var(--ink);
+  background: var(--accent-bg);
+  padding: 10px 14px;
+  border-radius: var(--r-sm);
+  margin-bottom: 10px;
+}
+@media (max-width: 900px) {
+  .hero,
+  .seal {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  .points {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  .points > div,
+  .points > div:first-child {
+    padding: 0 0 0 20px;
+  }
+}
