@@ -5,13 +5,18 @@ import { usePathname, useRouter } from "next/navigation";
 import { logout } from "@/lib/api";
 import { useSession } from "@/lib/session";
 
-export function Mark({ size = 22 }: { size?: number }) {
-  // Three interlocking links: the per-ticket chain.
+export function Mark({ size = 28 }: { size?: number }) {
+  // A staircase (the escalation ladder) with a seal resting on the top step.
   return (
-    <svg width={size * 1.6} height={size} viewBox="0 0 38 22" fill="none" aria-hidden="true">
-      <rect x="1.5" y="5" width="15" height="12" rx="6" stroke="currentColor" strokeWidth="2.6" />
-      <rect x="11.5" y="5" width="15" height="12" rx="6" stroke="#ffb300" strokeWidth="2.6" />
-      <rect x="21.5" y="5" width="15" height="12" rx="6" stroke="currentColor" strokeWidth="2.6" />
+    <svg width={size} height={size * (32 / 30)} viewBox="0 0 30 32" fill="none" aria-hidden="true">
+      <path
+        d="M3 30V22H11V16H19V10H27V30Z"
+        fill="currentColor"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+      <circle cx="23" cy="4.5" r="3.5" fill="#ffb300" />
     </svg>
   );
 }
