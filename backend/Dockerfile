@@ -8,7 +8,7 @@ RUN pip install -r requirements.txt
 
 # WITH_ML=1 installs the local models and downloads them at build time, so the
 # running containers never call out to the internet with complaint text.
-ARG WITH_ML=0
+ARG WITH_ML=1
 RUN if [ "$WITH_ML" = "1" ]; then \
     pip install -r requirements-ml.txt && \
     python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2'); \

@@ -1,10 +1,7 @@
-# docker compose up --build
-#   web        http://localhost:3000
-#   api        http://localhost:8000/docs
-#   minio      http://localhost:9001  (vishanti / vishanti-secret)
-#
-# SLA_HOUR_SECONDS=60 makes one SLA hour last one minute, so escalation can be
-# watched live during a demo. Set it to 3600 for real use.
+# Start with: docker compose up --build
+# Web: http://localhost:3000
+# API: http://localhost:8000/docs
+# SLA_HOUR_SECONDS=60 makes one SLA hour last one minute.
 
 x-backend-env: &backend-env
   DATABASE_URL: postgresql+asyncpg://vishanti_app:vishanti_app_pw@db:5432/vishanti
@@ -12,15 +9,22 @@ x-backend-env: &backend-env
   REDIS_URL: redis://redis:6379/0
   JWT_SECRET: ${JWT_SECRET:-replace-this-with-a-long-random-secret}
   SLA_HOUR_SECONDS: ${SLA_HOUR_SECONDS:-60}
+
+  # Keep local file storage; MinIO remains disabled.
   STORAGE_BACKEND: local
+
   S3_ENDPOINT_URL: http://minio:9000
   S3_PUBLIC_ENDPOINT_URL: http://localhost:9000
   S3_ACCESS_KEY: vishanti
   S3_SECRET_KEY: vishanti-secret
   S3_BUCKET: vishanti
+
   PUBLIC_API_URL: http://localhost:8000
   CORS_ORIGINS: http://localhost:3000
+
+  # Use local ML models when available; otherwise fall back to hashing.
   EMBEDDINGS_BACKEND: ${EMBEDDINGS_BACKEND:-auto}
+
   GITHUB_TOKEN: ${GITHUB_TOKEN:-}
   CHECKPOINT_GIST_ID: ${CHECKPOINT_GIST_ID:-}
 
@@ -41,7 +45,7 @@ services:
 
   redis:
     image: redis:7-alpine
-    command: ["redis-server", "--appendonly", "yes"]  # timers survive a restart
+    command: ["redis-server", "--appendonly", "yes"]
     volumes:
       - redisdata:/data
     healthcheck:
@@ -49,52 +53,68 @@ services:
       interval: 3s
       retries: 20
 
-  # minio:
-  #   image: minio/minio:latest
-  #   command: server /data --console-address ":9001"
-  #   environment:
-  #     MINIO_ROOT_USER: vishanti
-  #     MINIO_ROOT_PASSWORD: vishanti-secret
-  #   ports: ["9000:9000", "9001:9001"]
-  #   volumes:
-  #     - miniodata:/data
-
-  # minio-init:
-  #   image: minio/mc:latest
-  #   depends_on: [minio]
-  #   entrypoint: >
-  #     sh -c "until mc alias set local http://minio:9000 vishanti vishanti-secret; do sleep 1; done;
-  #            mc mb -p local/vishanti && mc anonymous set none local/vishanti"
+  # ML-enabled backend image.
+  # WITH_ML=1 installs dependencies and downloads models during the build.
 
   migrate:
-    build: ./backend
+    build:
+      context: ./backend
+      args:
+        WITH_ML: "1"
     environment: *backend-env
     command: ["python", "-m", "app.init_db", "--demo"]
     depends_on:
-      db: { condition: service_healthy }
-      redis: { condition: service_healthy }
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
   api:
-    build: ./backend
+    build:
+      context: ./backend
+      args:
+        WITH_ML: "1"
     environment: *backend-env
-    ports: ["8000:8000"]
+    ports:
+      - "8000:8000"
     depends_on:
-          migrate:
-              condition: service_completed_successfully
+      migrate:
+        condition: service_completed_successfully
 
   worker:
-    build: ./backend
+    build:
+      context: ./backend
+      args:
+        WITH_ML: "1"
     environment: *backend-env
-    command: ["celery", "-A", "app.celery_app", "worker", "--loglevel=INFO", "--concurrency=2"]
+    command:
+      - celery
+      - -A
+      - app.celery_app
+      - worker
+      - --loglevel=INFO
+      - --concurrency=2
     depends_on:
-      migrate: { condition: service_completed_successfully }
+      migrate:
+        condition: service_completed_successfully
 
   beat:
-    build: ./backend
+    build:
+      context: ./backend
+      args:
+        WITH_ML: "1"
     environment: *backend-env
-    command: ["celery", "-A", "app.celery_app", "beat", "--loglevel=INFO", "-s", "/tmp/celerybeat-schedule"]
+    command:
+      - celery
+      - -A
+      - app.celery_app
+      - beat
+      - --loglevel=INFO
+      - -s
+      - /tmp/celerybeat-schedule
     depends_on:
-      migrate: { condition: service_completed_successfully }
+      migrate:
+        condition: service_completed_successfully
 
   web:
     build:
@@ -103,8 +123,10 @@ services:
         NEXT_PUBLIC_API_URL: http://localhost:8000
     environment:
       INTERNAL_API_URL: http://api:8000
-    ports: ["3000:3000"]
-    depends_on: [api]
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
 
 volumes:
   pgdata:
