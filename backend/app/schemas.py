@@ -1,4 +1,4 @@
-from future import annotations
+from __future__ import annotations
 
 from typing import Literal
 
@@ -33,7 +33,8 @@ class TicketIn(BaseModel):
 
 
 class ActionIn(BaseModel):
-    action: Literal[Action.ASSIGN, Action.START_REVIEW, Action.RESOLVE, Action.CONFIRM, Action.DISPUTE]
+    action: Literal[Action.ASSIGN, Action.START_REVIEW,
+                    Action.RESOLVE, Action.CONFIRM, Action.DISPUTE]
     note: str | None = Field(default=None, max_length=2000)
 
 
